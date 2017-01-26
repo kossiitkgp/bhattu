@@ -3,22 +3,16 @@ import time
 from slackclient import SlackClient
 from pprint import pprint
 
-"""
-BOT_ID = "U3WMARBN1"
-BOT_ACCESS_TOKEN = "xoxb-132724861749-zDjDXpuyDXypTgJgJsKub8Lk"
-CH_RANDOM_ID = "C0H8UKU2V"
-"""
-
 
 # starterbot's ID as an environment variable
-BOT_ID = "U3WMARBN1"
+BOT_ID = os.environ["BOT_ID"]
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
 
 # instantiate Slack & Twilio clients
-slack_client = SlackClient("xoxb-132724861749-zDjDXpuyDXypTgJgJsKub8Lk")
+slack_client = SlackClient(os.environ["SLACK_BOT_TOKEN"])
 
 
 # def handle_command(command, channel):
@@ -61,7 +55,7 @@ def send_message(user) :
 
 if __name__ == "__main__":
     # pprint (slack_client.api_call("channels.list"))
-    users =  slack_client.api_call("users.list",channel="C0H8UKU2V")["members"]
+    users =  slack_client.api_call("users.list",channel=os.environ["CH_RANDOM_ID"])["members"]
     onlineUsers = ""
     for user in users :
         if not user["deleted"] and not user["is_bot"]:
