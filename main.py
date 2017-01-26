@@ -60,6 +60,7 @@ if __name__ == "__main__":
     for user in users :
         if not user["deleted"] and not user["is_bot"]:
             userId = user["id"]
+            print userId
             if slack_client.api_call("users.getPresence",user=userId)["presence"] == "active" :
                 onlineUsers += "<@{}> ".format(userId)
     send_message(onlineUsers)
