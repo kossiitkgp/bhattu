@@ -45,11 +45,12 @@ slack_client = SlackClient(os.environ["SLACK_BOT_TOKEN"])
 #                        output['channel']
 #     return None, None
 
-    
+
 def send_message(user) :
     slack_client.api_call(
                             "chat.postMessage",
                             channel="#random",
+                            as_user=True,
                             text="{} How about we have chai and sutta at Cheddis".format(user)
                             )
 
