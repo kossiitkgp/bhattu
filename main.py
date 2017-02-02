@@ -57,13 +57,16 @@ if __name__ == "__main__":
     # pprint (slack_client.api_call("channels.list"))
     users =  slack_client.api_call("users.list",channel=os.environ["CH_RANDOM_ID"])["members"]
     onlineUsers = ""
+    totalUsers = 0 
     for user in users :
         if not user["deleted"] and not user["is_bot"]:
             userId = user["id"]
             print userId
             if slack_client.api_call("users.getPresence",user=userId)["presence"] == "active" :
+                totalUsers +=1
                 onlineUsers += "<@{}> ".format(userId)
-    send_message(onlineUsers)
+    if not onlineUsers == "" and totalUsers > 1:
+        send_message(onlineUsers)
      # print len(users)
     # pprint (users[0])
     # pprint (slack_client.api_call("users.getPresence",user="U10B2B9GV"))
