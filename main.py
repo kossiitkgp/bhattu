@@ -3,11 +3,11 @@ import time
 from slackclient import SlackClient
 from pprint import pprint
 from time import gmtime, strftime
+import json
 
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ["BOT_ID"]
-
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 
@@ -15,34 +15,35 @@ AT_BOT = "<@" + BOT_ID + ">"
 slack_client = SlackClient(os.environ["SLACK_BOT_TOKEN"])
 
 
-def handle_command(command, channel, msg):
+def handle_command(command, channel, msg, usernm):
      """
          Receives commands directed at the bot and determines if they
          are valid commands. If so, then acts on the commands. If not,
          returns back what it needs for clarification.
      """
-     response = "Not sure what you mean. Use the *&freshers* or *&seniors* command with text. I\'ll ping you at 3 in case you are awake!"
+     response = ""
      try:
          print str(msg[0]["text"]).split(' ')[1][5:]
      except: pass
-     if str(msg[0]["text"]).split(' ')[1][5:]=="freshers":
-          myfile = open("freshers.txt", "r")
-          response=""
-          while (True):
-              line=myfile.readline()
-              if not line: break
-              response+="@"+str(line[:-1])+" "
-          response+= str(msg[0]["text"])[27:]
-          myfile.close()
-     if str(msg[0]["text"]).split(' ')[1][5:]=="seniors":
-          myfile = open("seniors.txt", "r")
-          response=""
-          while (True):
-              line=myfile.readline()
-              if not line: break
-              response+="@"+str(line[:-1])+" "
-          response+= str(msg[0]["text"])[26:]
-          myfile.close()
+     key=str(msg[0]["text"]).split(' ')[1][5:]
+     totText=str(msg[0]["text"])
+     totText=totText[totText.find(' '):]
+     totText=totText[6:]
+     totText=totText[totText.find(' '):]
+     print totText
+     with open("data.json") as json_file:
+         data = json.load(json_file)
+         flag=1
+         print(data)
+         try:
+           handles=data[key]
+         except:
+            response = "Not sure what you mean. Use the *&freshers* or *&seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :D"
+            flag=0
+         if flag==1:
+           for i in handles:
+              response+="<@"+str(i)+"> "
+           response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
      slack_client.api_call("chat.postMessage", channel=channel,
                            text=response, as_user=True)
 
@@ -56,12 +57,11 @@ def parse_slack_output(slack_rtm_output):
      output_list = slack_rtm_output
      if output_list and len(output_list) > 0:
          for output in output_list:
-             print (output)
              if output and 'text' in output and AT_BOT in output['text']:
                  # return text after the @ mention, whitespace removed
                  return output['text'].split(AT_BOT)[1].strip().lower(), \
-                        output['channel']
-     return None, None
+                        output['channel'],output['user']
+     return None, None, None
 
 
 def send_message(user) :
@@ -101,10 +101,10 @@ if __name__ == "__main__":
             if timenow[11:13]=='04': count=0
             textRead=[]
             textRead=slack_client.rtm_read()
-            command, channel = parse_slack_output(textRead)
+            command, channel, usernm = parse_slack_output(textRead)
             if command and channel:
-                print "Ho ho ho!"
-                handle_command(command, channel, textRead)
+                print "Received a command, processing..."
+                handle_command(command, channel, textRead, usernm)
             time.sleep(READ_WEBSOCKET_DELAY)
     else:
         print("Connection failed. Invalid Slack token or bot ID?")
