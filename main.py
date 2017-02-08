@@ -22,28 +22,24 @@ def handle_command(command, channel, msg, usernm):
          returns back what it needs for clarification.
      """
      response = ""
-     try:
-         print str(msg[0]["text"]).split(' ')[1][5:]
-     except: pass
      key=str(msg[0]["text"]).split(' ')[1][5:]
      totText=str(msg[0]["text"])
      totText=totText[totText.find(' '):]
      totText=totText[6:]
      totText=totText[totText.find(' '):]
-     print totText
      with open("data.json") as json_file:
          data = json.load(json_file)
          flag=1
-         print(data)
          try:
            handles=data[key]
          except:
-            response = "Not sure what you mean. Use the *&freshers* or *&seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :D"
+            response = "Not sure what you mean. Use the *&freshers* or *&seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
             flag=0
          if flag==1:
            for i in handles:
               response+="<@"+str(i)+"> "
            response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
+     print "\nResponse: -\n"+response
      slack_client.api_call("chat.postMessage", channel=channel,
                            text=response, as_user=True)
 
@@ -88,6 +84,7 @@ if __name__ == "__main__":
                 users =  slack_client.api_call("users.list",channel=os.environ["CH_RANDOM_ID"])["members"]
                 onlineUsers = ""
                 totalUsers = 0
+                print "Checking users..."
                 for user in users :
                     if not user["deleted"] and not user["is_bot"]:
                         userId = user["id"]
