@@ -65,7 +65,7 @@ def send_message(user) :
                             "chat.postMessage",
                             channel="#random",
                             as_user=True,
-                            text="{} How about we have chai and sutta at Cheddis".format(user)
+                            text="{} How about we have chai and sutta at Chedis ..? :stuck_out_tongue_winking_eye:".format(user)
                             )
 
 if __name__ == "__main__":
