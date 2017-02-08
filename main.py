@@ -80,7 +80,7 @@ if __name__ == "__main__":
         print("Bhattu connected to KOSS!")
         while True:
             timenow=str(strftime("%Y-%m-%d %H:%M:%S", gmtime())) #Output format 2009-01-05 22:14:39
-            if timenow[11:13]=='03' and count==0:
+            if timenow[11:13]=='21' and timenow [14:16]=='30' and count==0:
                 users =  slack_client.api_call("users.list",channel=os.environ["CH_RANDOM_ID"])["members"]
                 onlineUsers = ""
                 totalUsers = 0
@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 if not onlineUsers == "" and totalUsers > 1:
                     send_message(onlineUsers)
                 count=1
-            if timenow[11:13]=='04': count=0
+            if timenow[11:13]=='22': count=0
             textRead=[]
             textRead=slack_client.rtm_read()
             command, channel, usernm = parse_slack_output(textRead)
