@@ -29,10 +29,10 @@ def handle_command(command, channel, msg, usernm):
 	freshers_msg = ""
 	comp2 = comp[:]
 	for i in comp:
-	if i == '/seniors':
-		keys.append(i[1:])
-		if comp[comp.index(i)+1] != "/freshers":
-			seniors_msg = comp[comp.index(i)+1]
+		if i == '/seniors':
+			keys.append(i[1:])
+			if comp[comp.index(i)+1] != "/freshers":
+				seniors_msg = comp[comp.index(i)+1]
 			else:
 				seniors_msg = ""
 			comp2.remove(i)
@@ -73,7 +73,7 @@ def response_formatter(key,totText,usernm):
 	return response
 
 def parse_slack_output(slack_rtm_output):
-     """
+   	"""
          The Slack Real Time Messaging API is an events firehose.
          this parsing function returns None unless a message is
          directed at the Bot, based on its ID.
