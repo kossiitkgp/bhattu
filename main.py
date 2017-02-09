@@ -61,7 +61,7 @@ def response_formatter(key,totText,usernm):
 	with open("data.json") as json_file:
 		data = json.load(json_file)
 		if key not in data:
-			response += "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
+			response += "Not sure what you mean. Use '*\seniors* <msg_seniors> *\freshers* <msg_freshsers>' to notify seniors and freshers with their respective messages .\nI\'ll ping you at 3 in case you are awake! :smile:"
 		else:   
 			for i in data[key]:
 				response+="<@"+str(i)+"> "
