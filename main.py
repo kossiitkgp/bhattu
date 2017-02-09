@@ -46,9 +46,9 @@ def handle_command(command, channel, msg, usernm):
 
 	for j in keys:
 		if j == 'seniors':
-			response += response_formatter(j,seniors_msg)
+			response += response_formatter(j,seniors_msg,usernm)
 		elif j == 'freshers':
-			response += response_formatter(j,freshers_msg)
+			response += response_formatter(j,freshers_msg,usernm)
 
 
 	print "\nResponse: -\n"+response
@@ -56,7 +56,7 @@ def handle_command(command, channel, msg, usernm):
 					   text=response, as_user=True)
 
 
-def response_formatter(key,totText):
+def response_formatter(key,totText,usernm):
 	response = ""
 	with open("data.json") as json_file:
 		data = json.load(json_file)
