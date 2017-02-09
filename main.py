@@ -16,48 +16,76 @@ slack_client = SlackClient(os.environ["SLACK_BOT_TOKEN"])
 
 
 def handle_command(command, channel, msg, usernm):
-     """
-         Receives commands directed at the bot and determines if they
-         are valid commands. If so, then acts on the commands. If not,
-         returns back what it needs for clarification.
-     """
-     response = ""
-     key=str(msg[0]["text"]).split(' ')[1][1:]
-     totText=str(msg[0]["text"])
-     totText=totText[totText.find(' '):]
-     totText=totText[6:]
-     totText=totText[totText.find(' '):]
-     with open("data.json") as json_file:
-         data = json.load(json_file)
-         flag=1
-         try:
-           handles=data[key]
-         except:
-            response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
-            flag=0
-         if flag==1:
-           for i in handles:
-              response+="<@"+str(i)+"> "
-           response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
-     print "\nResponse: -\n"+response
-     slack_client.api_call("chat.postMessage", channel=channel,
-                           text=response, as_user=True)
+	 """
+		 Receives commands directed at the bot and determines if they
+		 are valid commands. If so, then acts on the commands. If not,
+		 returns back what it needs for clarification.
+	 """
+	keys = []
+	response = ""
+	msg = (msg.replace("@bhattu","")).strip()
+	comp = msg.split()
+	seniors_msg = ""
+	freshers_msg = ""
+	comp2 = comp[:]
+	for i in comp:
+		if i == '/seniors':
+			keys.append(i[1:])
+			if comp[comp.index(i)+1] != "/freshers":
+				seniors_msg = comp[comp.index(i)+1]
+			else:
+				seniors_msg = ""
+			comp2.remove(i)
+		elif i == '/freshers':
+			keys.append(i[1:])
+			if comp[comp.index(i)+1] != "/seniors":
+				freshers_msg = comp[comp.index(i)+1]
+			else:
+				freshers_msg = ""
+			comp2.remove(i)
 
+	for j in keys:
+		if j == 'seniors':
+			response += response_formatter(j,seniors_msg,usernm)
+		elif j == 'freshers':
+			response += response_formatter(j,freshers_msg,usernm)
+
+
+	print "\nResponse: -\n"+response
+	slack_client.api_call("chat.postMessage", channel=channel,
+					   text=response, as_user=True)
+
+
+def response_formatter(key,totText,usernm):
+	response = ""
+	with open("data.json") as json_file:
+		data = json.load(json_file)
+		if key not in data:
+			response += "Not sure what you mean. Use '*\seniors* <msg_seniors> *\freshers* <msg_freshsers>' to notify seniors and freshers with their respective messages .\nI\'ll ping you at 3 in case you are awake! :smile:"
+		else:   
+			for i in data[key]:
+				response+="<@"+str(i)+"> "
+		if totText != "":
+			response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
+		else:
+			return response
+	response += "\n\n"
+	return response
 
 def parse_slack_output(slack_rtm_output):
-     """
+   	"""
          The Slack Real Time Messaging API is an events firehose.
          this parsing function returns None unless a message is
          directed at the Bot, based on its ID.
      """
-     output_list = slack_rtm_output
+    output_list = slack_rtm_output
      if output_list and len(output_list) > 0:
-         for output in output_list:
+        for output in output_list:
              if output and 'text' in output and AT_BOT in output['text']:
-                 # return text after the @ mention, whitespace removed
+                # return text after the @ mention, whitespace removed
                  return output['text'].split(AT_BOT)[1].strip().lower(), \
                         output['channel'],output['user']
-     return None, None, None
+    return None, None, None
 
 
 def send_message(user) :
@@ -69,10 +97,10 @@ def send_message(user) :
                             )
 
 if __name__ == "__main__":
-    # pprint (slack_client.api_call("channels.list"))
+	# pprint (slack_client.api_call("channels.list"))
 
-     # print len(users)
-    # pprint (users[0])
+    	 # print len(users)
+   		 # pprint (users[0])
     # pprint (slack_client.api_call("users.getPresence",user="U10B2B9GV"))
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
