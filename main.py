@@ -22,7 +22,7 @@ def handle_command(command, channel, msg, usernm):
          returns back what it needs for clarification.
      """
      response = ""
-     key=str(msg[0]["text"]).split(' ')[1][5:]
+     key=str(msg[0]["text"]).split(' ')[1][1:]
      totText=str(msg[0]["text"])
      totText=totText[totText.find(' '):]
      totText=totText[6:]
