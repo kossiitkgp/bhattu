@@ -33,7 +33,7 @@ def handle_command(command, channel, msg, usernm):
          try:
            handles=data[key]
          except:
-            response = "Not sure what you mean. Use the *&freshers* or *&seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
+            response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
             flag=0
          if flag==1:
            for i in handles:
