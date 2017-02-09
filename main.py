@@ -74,6 +74,33 @@ def response_formatter(key,totText):
 
 
 
+     """
+         Receives commands directed at the bot and determines if they
+         are valid commands. If so, then acts on the commands. If not,
+         returns back what it needs for clarification.
+     """
+     response = ""
+     key=str(msg[0]["text"]).split(' ')[1][1:]
+     totText=str(msg[0]["text"])
+     totText=totText[totText.find(' '):]
+     totText=totText[6:]
+     totText=totText[totText.find(' '):]
+     with open("data.json") as json_file:
+         data = json.load(json_file)
+         flag=1
+         try:
+           handles=data[key]
+         except:
+            response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
+            flag=0
+         if flag==1:
+           for i in handles:
+              response+="<@"+str(i)+"> "
+           response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
+     print "\nResponse: -\n"+response
+     slack_client.api_call("chat.postMessage", channel=channel,
+                           text=response, as_user=True)
+>>>>>>> 9f7fe93b106489615c1d65d0330746641ed46b53
 
 
 def parse_slack_output(slack_rtm_output):
