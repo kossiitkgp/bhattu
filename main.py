@@ -16,32 +16,64 @@ slack_client = SlackClient(os.environ["SLACK_BOT_TOKEN"])
 
 
 def handle_command(command, channel, msg, usernm):
-     """
-         Receives commands directed at the bot and determines if they
-         are valid commands. If so, then acts on the commands. If not,
-         returns back what it needs for clarification.
-     """
-     response = ""
-     key=str(msg[0]["text"]).split(' ')[1][1:]
-     totText=str(msg[0]["text"])
-     totText=totText[totText.find(' '):]
-     totText=totText[6:]
-     totText=totText[totText.find(' '):]
-     with open("data.json") as json_file:
-         data = json.load(json_file)
-         flag=1
-         try:
-           handles=data[key]
-         except:
-            response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
-            flag=0
-         if flag==1:
-           for i in handles:
-              response+="<@"+str(i)+"> "
-           response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
-     print "\nResponse: -\n"+response
-     slack_client.api_call("chat.postMessage", channel=channel,
-                           text=response, as_user=True)
+	 """
+		 Receives commands directed at the bot and determines if they
+		 are valid commands. If so, then acts on the commands. If not,
+		 returns back what it needs for clarification.
+	 """
+	keys = []
+	response = ""
+	msg = (msg.replace("@bhattu","")).strip()
+	comp = msg.split()
+	seniors_msg = ""
+	freshers_msg = ""
+	comp2 = comp[:]
+	for i in comp:
+	if i == '/seniors':
+		keys.append(i[1:])
+		if comp[comp.index(i)+1] != "/freshers":
+			seniors_msg = comp[comp.index(i)+1]
+			else:
+				seniors_msg = ""
+			comp2.remove(i)
+		 elif i == '/freshers':
+			keys.append(i[1:])
+			if comp[comp.index(i)+1] != "/seniors":
+				freshers_msg = comp[comp.index(i)+1]
+			else:
+				freshers_msg = ""
+			comp2.remove(i)
+
+	for j in keys:
+		if j == 'seniors':
+			response += response_formatter(j,seniors_msg)
+		elif j == 'freshers':
+			response += response_formatter(j,freshers_msg)
+
+
+	print "\nResponse: -\n"+response
+	slack_client.api_call("chat.postMessage", channel=channel,
+					   text=response, as_user=True)
+
+
+def response_formatter(key,totText):
+	response = ""
+	with open("data.json") as json_file:
+		data = json.load(json_file)
+		if key not in data:
+			response += "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
+		else:   
+			for i in data[key]:
+				response+="<@"+str(i)+"> "
+		if totText != "":
+			response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
+		else:
+			return response
+	response += "\n\n"
+	return response
+
+
+
 
 
 def parse_slack_output(slack_rtm_output):
