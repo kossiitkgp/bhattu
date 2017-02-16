@@ -11,17 +11,17 @@ sys.setdefaultencoding('utf8')
 channel=""
 
 def slack_notification(message):
-		headers = {
-				"Content-Type": "application/json"
-		}
-		data = json.dumps({
-				"text": "In bhattu, following error occured :\n{}".format(message)
-		})
-		r = requests.post(
-				os.environ["SLACK_WEBHOOK_URL"], headers=headers, data=data)
+        headers = {
+                "Content-Type": "application/json"
+        }
+        data = json.dumps({
+                "text": "In bhattu, following error occured :\n{}".format(message)
+        })
+        r = requests.post(
+                os.environ["SLACK_WEBHOOK_URL"], headers=headers, data=data)
 
-		if r.status_code != 200:
-				print("in slack_notification : {}".format(r.status_code))
+        if r.status_code != 200:
+                print("in slack_notification : {}".format(r.status_code))
 
 def handle_command(command, channel, msg, usernm):
      """
@@ -30,38 +30,72 @@ def handle_command(command, channel, msg, usernm):
          returns back what it needs for clarification.
      """
      response = ""
-     msgs=""
-     msg[0]["text"]=msg[0]["text"].encode('utf-8')
-     for i in xrange(0,len(str(msg[0]["text"]))):
-         if str(msg[0]["text"])[i]=="\"":
-             msgs+="\""
-         elif str(msg[0]["text"])[i]=="\'":
-             msgs+="\'"
-         else:
-             msgs+=str(msg[0]["text"])[i]
-     key=str(msgs).split(' ')[1][1:]
-     msgs=msgs.encode('utf-8')
-     totText=str(msgs)
-     totText=totText[totText.find(' '):]
-     totText=totText[6:]
-     totText=totText[totText.find(' '):]
+
+     msgs=str(msg[0]["text"].encode('utf-8'))
+     msgs=msgs[msgs.find(' '):]
+     for i in xrange(0,len(msgs)):
+         if (msgs[i]!=' '):
+            msgs=msgs[i:]
+            break
+     msgs=" "+msgs
+     keys=[]
+     chs=[]
+     i=0
+     while(True):
+        if (i>=len(msgs)): break
+        if (msgs[i]==' '):
+            i+=1; continue
+        if (msgs[i]=='/' and msgs[i-1]==' '):
+            keys.append(msgs[i+1:].split(' ')[0])
+            if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
+            else: i+=1
+            continue
+        if (msgs[i]!=' ' and msgs[i-1]==' '):
+            msgs=msgs[i-1:]
+            break
+        i+=1
+     i=0
+     while(True):
+        if (i>=len(msgs)): break
+        if (msgs[i]==' '):
+            i+=1; continue
+        if (msgs[i]=='<' and msgs[i-1]==' '):
+            chs.append(msgs[i+1:].split(' ')[0])
+            if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
+            else: i+=1
+            continue
+        if (msgs[i]!=' ' and msgs[i-1]==' '):
+            msgs=msgs[i-1:]
+            break
+        i+=1
+     flag=1
+     keys=list(set(keys)); chs=list(set(chs))
      with open("data.json") as json_file:
-         data = json.load(json_file)
-         flag=1
-         try:
-           handles=data[key]
-           if str(msg[0]["text"])[0]!='<':
-               raise Exception('Command error!')
-         except:
-            response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space to notify them.\nI\'ll ping you at 3 in case you are awake! :smile:"
-            flag=0
-         if flag==1:
-           for i in handles:
-              response+="<@"+str(i)+"> "
-           response+= "\nNotification for *"+str(key)+"* from <@"+usernm+">: "+totText
+             data = json.load(json_file); handles=[]
+             try:
+                for key in keys:  handles+=data[key]
+             except:
+                response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`\nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
+                flag=0
+
+     handles = list ( set ( handles ) )
+     if flag==1:
+            for i in handles:  response+="<@"+str(i)+"> "
+            response+= "\nNotification for "
+            for i in xrange(0,len(keys)):
+                response+="*"+str(keys[i])+"*"
+                if (i==len(keys)-2):
+                  response+=" and "
+                if (i<len(keys)-2):
+                  response+=", "
+            response+=" from <@"+usernm+">: "+msgs
      print "\nResponse: -\n"+response
-     slack_client.api_call("chat.postMessage", channel=channel,
-                           text=response, as_user=True)
+     if (chs==[]):
+       slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+     else:
+       for i in chs:
+         slack_client.api_call("chat.postMessage", channel=(str(i))[1:str(i).find('|')], text=response, as_user=True)
+
 
 
 try:
