@@ -75,13 +75,15 @@ def handle_command(command, channel, msg, usernm):
              try:
                 for key in keys:  handles+=data[key]
              except:
-                response = "Not sure what you mean. Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`\nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
+                response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`\nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
                 flag=0
 
      handles = list ( set ( handles ) )
      if flag==1:
             for i in handles:  response+="<@"+str(i)+"> "
-            response+= "\nNotification for "
+            if len(keys)>0:
+            	response+= "\nNotification for "
+            else: response+= "\nNotification"
             for i in xrange(0,len(keys)):
                 response+="*"+str(keys[i])+"*"
                 if (i==len(keys)-2):
@@ -89,6 +91,12 @@ def handle_command(command, channel, msg, usernm):
                 if (i<len(keys)-2):
                   response+=", "
             response+=" from <@"+usernm+">: "+msgs
+     while(1):
+	     pos=response.find('<@'+os.environ["BOT_ID"]+'>')
+	     if pos>0:
+	     	pos2=pos+(response[pos:].find('>'))
+	     	response=response[0:pos]+"`"+"@bhattu"+"`"+response[pos2+1:]
+	     else: break
      print "\nResponse: -\n"+response
      if (chs==[]):
        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
@@ -168,6 +176,7 @@ try:
                 command, channel, usernm = parse_slack_output(textRead)
                 if command and channel:
                     print "Received a command, processing..."
+                    print "\nCommand received:-\n"+str(textRead)
                     handle_command(command, channel, textRead, usernm)
                 time.sleep(READ_WEBSOCKET_DELAY)
         else:
