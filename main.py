@@ -10,6 +10,8 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 channel=""
 
+os.system("python json_maker.py < tags.txt")
+
 def slack_notification(message):
         headers = {
                 "Content-Type": "application/json"
@@ -30,78 +32,78 @@ def handle_command(command, channel, msg, usernm):
          returns back what it needs for clarification.
      """
      response = ""
-    
+     keys=[]
+     chs=[]
      msgs=str(msg[0]["text"].encode('utf-8'))
      print msgs
      if (msgs.find('<@'+os.environ["BOT_ID"]+'>')) != 0:
      	errflag=1
      else: errflag=0
-     msgs=msgs[msgs.find(' '):]
-     for i in xrange(0,len(msgs)):
-         if (msgs[i]!=' '):
-            msgs=msgs[i:]
-            break
-     msgs=" "+msgs
-     keys=[]
-     chs=[]
-     i=0
-     while(True):
-        if (i>=len(msgs)): break
-        if (msgs[i]==' '):
-            i+=1; continue
-        if (msgs[i]=='/' and msgs[i-1]==' '):
-            keys.append(msgs[i+1:].split(' ')[0])
-            if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
-            else: i+=1
-            continue
-        if (msgs[i]!=' ' and msgs[i-1]==' '):
-            msgs=msgs[i-1:]
-            break
-        i+=1
-     i=0
-     while(True):
-        if (i>=len(msgs)): break
-        if (msgs[i]==' '):
-            i+=1; continue
-        if (msgs[i]=='<' and msgs[i-1]==' '):
-            chs.append(msgs[i+1:].split(' ')[0])
-            if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
-            else: i+=1
-            continue
-        if (msgs[i]!=' ' and msgs[i-1]==' '):
-            msgs=msgs[i-1:]
-            break
-        i+=1
-     flag=1
-     keys=list(set(keys)); chs=list(set(chs))
-     with open("data.json") as json_file:
-             data = json.load(json_file); handles=[]
-             try:
-                for key in keys:  handles+=data[key]
-             except:
-                response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`. It is advisable to use bhattu through private messages with avoid clutter. \nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
-                flag=0
+     if errflag==0:
+	     msgs=msgs[msgs.find(' '):]
+	     for i in xrange(0,len(msgs)):
+		 if (msgs[i]!=' '):
+		    msgs=msgs[i:]
+		    break
+	     msgs=" "+msgs
+	     i=0
+	     while(True):
+		if (i>=len(msgs)): break
+		if (msgs[i]==' '):
+		    i+=1; continue
+		if (msgs[i]=='/' and msgs[i-1]==' '):
+		    keys.append(msgs[i+1:].split(' ')[0])
+		    if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
+		    else: i+=1
+		    continue
+		if (msgs[i]!=' ' and msgs[i-1]==' '):
+		    msgs=msgs[i-1:]
+		    break
+		i+=1
+	     i=0
+	     while(True):
+		if (i>=len(msgs)): break
+		if (msgs[i]==' '):
+		    i+=1; continue
+		if (msgs[i]=='<' and msgs[i-1]==' '):
+		    chs.append(msgs[i+1:].split(' ')[0])
+		    if msgs[i+1:].find(' ')!=-1: i+=msgs[i+1:].find(' ')
+		    else: i+=1
+		    continue
+		if (msgs[i]!=' ' and msgs[i-1]==' '):
+		    msgs=msgs[i-1:]
+		    break
+		i+=1
+	     flag=1
+	     keys=list(set(keys)); chs=list(set(chs))
+	     with open("data.json") as json_file:
+		     data = json.load(json_file); handles=[]
+		     try:
+		        for key in keys:  handles+=data[key]
+		     except:
+		        response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`. It is advisable to use bhattu through private messages with avoid clutter. \nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
+		        flag=0
 
-     handles = list ( set ( handles ) )
-     if flag==1:
-            for i in handles:  response+="<@"+str(i)+"> "
-            if len(keys)>0:
-            	response+= "\nNotification for "
-            else: response+= "\nNotification"
-            for i in xrange(0,len(keys)):
-                response+="*"+str(keys[i])+"*"
-                if (i==len(keys)-2):
-                  response+=" and "
-                if (i<len(keys)-2):
-                  response+=", "
-            response+=" from <@"+usernm+">: "+msgs
-     while(1):
-	     pos=response.find('<@'+os.environ["BOT_ID"]+'>')
-	     if pos>0:
-	     	pos2=pos+(response[pos:].find('>'))
-	     	response=response[0:pos]+"`"+"@bhattu"+"`"+response[pos2+1:]
-	     else: break
-     if errflag != 0: response="Please start your message with `@bhattu`. Use `@bhattu /help` for help."
+	     handles = list ( set ( handles ) )
+	     if flag==1:
+		    for i in handles:  response+="<@"+str(i)+"> "
+		    if len(keys)>0:
+		    	response+= "\nNotification for "
+		    else: response+= "\nNotification"
+		    for i in xrange(0,len(keys)):
+		        response+="*"+str(keys[i])+"*"
+		        if (i==len(keys)-2):
+		          response+=" and "
+		        if (i<len(keys)-2):
+		          response+=", "
+		    response+=" from <@"+usernm+">: "+msgs
+	     while(1):
+		     pos=response.find('<@'+os.environ["BOT_ID"]+'>')
+		     if pos>0:
+		     	pos2=pos+(response[pos:].find('>'))
+		     	response=response[0:pos]+"`"+"@bhattu"+"`"+response[pos2+1:]
+		     else: break
+     else: response="Please start your message with `@bhattu`. Use `@bhattu /help` for help."
      print "\nResponse: -\n"+response
      if (chs==[]):
        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
@@ -140,6 +142,7 @@ try:
 
 
     def send_message(user) :
+        os.system("python json_maker.py < tags.txt")
         slack_client.api_call(
                                 "chat.postMessage",
                                 channel="#random",
