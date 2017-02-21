@@ -30,8 +30,12 @@ def handle_command(command, channel, msg, usernm):
          returns back what it needs for clarification.
      """
      response = ""
-
+    
      msgs=str(msg[0]["text"].encode('utf-8'))
+     print msgs
+     if (msgs.find('<@'+os.environ["BOT_ID"]+'>')) != 0:
+     	errflag=1
+     else: errflag=0
      msgs=msgs[msgs.find(' '):]
      for i in xrange(0,len(msgs)):
          if (msgs[i]!=' '):
@@ -75,7 +79,7 @@ def handle_command(command, channel, msg, usernm):
              try:
                 for key in keys:  handles+=data[key]
              except:
-                response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`\nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
+                response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`. It is advisable to use bhattu through private messages with avoid clutter. \nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
                 flag=0
 
      handles = list ( set ( handles ) )
@@ -97,6 +101,7 @@ def handle_command(command, channel, msg, usernm):
 	     	pos2=pos+(response[pos:].find('>'))
 	     	response=response[0:pos]+"`"+"@bhattu"+"`"+response[pos2+1:]
 	     else: break
+     if errflag != 0: response="Please start your message with `@bhattu`. Use `@bhattu /help` for help."
      print "\nResponse: -\n"+response
      if (chs==[]):
        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
