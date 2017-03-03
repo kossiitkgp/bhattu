@@ -104,13 +104,13 @@ def handle_command(command, channel, msg, usernm):
 		     	response=response[0:pos]+"`"+"@bhattu"+"`"+response[pos2+1:]
 		     else: break
      else: response="Please start your message with `@bhattu`. Use `@bhattu /help` for help."
+
      print "\nResponse: -\n"+response
      if (chs==[]):
        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
      else:
        for i in chs:
          slack_client.api_call("chat.postMessage", channel=(str(i))[1:str(i).find('|')], text=response, as_user=True)
-
 
 
 try:
