@@ -81,22 +81,28 @@ def handle_command(command, channel, msg, usernm):
 		     try:
 		        for key in keys:  handles+=data[key]
 		     except:
-		        response = "Use the */freshers* or */seniors* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`. It is advisable to use bhattu through private messages with avoid clutter. \nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
+		        response = "Use the */freshers*, */seniors* or */executives* command with text separated by a single space (and optionally a *#channel* name) to notify them.\nSyntax:`@bhattu /<group1> [/<group2> ...] [#<channel1> #<channel2> ...] <message>`. Eg: `@bhattu /freshers test`, `@bhattu /freshers /seniors  #test #random test`. It is advisable to use bhattu through private messages with avoid clutter. \nBtw, I\'ll ping you at 3 in case you are awake! :smile:"
 		        flag=0
 
 	     handles = list ( set ( handles ) )
 	     if flag==1:
-		    for i in handles:  response+="<@"+str(i)+"> "
+	            bracketflag=1
+	            response+=msgs+"\n"
 		    if len(keys)>0:
-		    	response+= "\nNotification for "
-		    else: response+= "\nNotification"
+		    	response+= "\n^ Notification for "
+		    else: response+= "\n^ Notification"; bracketflag=0
 		    for i in xrange(0,len(keys)):
 		        response+="*"+str(keys[i])+"*"
 		        if (i==len(keys)-2):
 		          response+=" and "
 		        if (i<len(keys)-2):
 		          response+=", "
-		    response+=" from <@"+usernm+">: "+msgs
+		    if bracketflag:
+		    	response+=" ("
+		    for i in handles:  response+="<@"+str(i)+"> "
+		    if bracketflag:
+		    	response=response[:-1]+")"
+		    response+=" from <@"+usernm+"> "
 	     while(1):
 		     pos=response.find('<@'+os.environ["BOT_ID"]+'>')
 		     if pos>0:
