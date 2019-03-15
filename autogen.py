@@ -3,10 +3,14 @@ This script generates .txt from the secrets/Contacts repo.
 The name of the .txt file will be the same as that of the .csv file used.
 Please provide the path to the Contacts folder while running the script.
 e.g:    python autogen.py ../secrets/Contacts
-Note: Latest year = freshers, latest - 1 = executives, <latest - 2 = seniors, hyphen joined filename = Alumni
+Note: Latest year = freshers, latest - 1 = executives, 
+    <latest - 2 = seniors, hyphen joined filename = Alumni
 """
 
-import os, os.path, sys, glob
+import os
+import os.path
+import sys
+import glob
 
 pathname = sys.argv[1]
 filelist = glob.glob(pathname + "*.csv")
@@ -17,7 +21,10 @@ yearlist = list()
 for csv in filelist:
     f = os.path.basename(csv)[:-4]
     if '-' in f:
-        #Many old year members punched into one file. Must be our respected alumni.
+        """
+        Many old year members punched into one file. 
+        Must be our respected alumni.
+        """
         namemap[f] = "alumni"
     else:
         yearlist.append(int(f))
@@ -52,13 +59,3 @@ else:
     print "Unknown choice entered! Aborting"
 
 print "\n"
-
-
-
-
-
-
-
-
-
-
