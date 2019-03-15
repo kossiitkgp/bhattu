@@ -2,9 +2,9 @@
 This script generates .txt from the secrets/Contacts repo.
 The name of the .txt file will be the same as that of the .csv file used.
 Please provide the path to the Contacts folder while running the script.
-e.g:    python autogen.py ../secrets/Contacts/   
-(The last '/' is mandatory.
-Note: Latest year = freshers, latest - 1 = executives, 
+e.g:    python autogen.py ../secrets/Contacts/
+(The last '/' is mandatory.)
+Note: Latest year = freshers, latest - 1 = executives,
     <latest - 2 = seniors, hyphen joined filename = Alumni
 """
 
@@ -23,7 +23,7 @@ for csv in filelist:
     f = os.path.basename(csv)[:-4]
     if '-' in f:
         """
-        Many old year members punched into one file. 
+        Many old year members punched into one file.
         Must be our respected alumni.
         """
         namemap[f] = "alumni"
