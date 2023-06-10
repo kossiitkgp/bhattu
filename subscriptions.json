@@ -1,0 +1,31 @@
+{
+    "sutta": {
+        "status": "off",
+        "ping_channel_id": "C05AXRLDBV1",
+        "ping_message": "Ping for Chai and Sutta",
+        "ping_time": "4:30",
+        "ping_days": "0,1,2,3,4,5,6",
+        "subscribers": [
+            "U03MH4428ES",
+            "U03NDEQTQKA"
+        ]
+    },
+    "test2": {
+        "status": "on",
+        "ping_channel_id": "C05BTSLQ350",
+        "ping_time": "3:18",
+        "ping_days": "6",
+        "ping_message": "Testing the /bhattu_mod :scared_pepe:",
+        "subscribers": [
+            "U03MH4428ES"
+        ]
+    },
+    "richup": {
+        "status": "on",
+        "ping_channel_id": "C05BTSLQ350",
+        "ping_time": "22:00",
+        "ping_days": "5",
+        "ping_message": "Hey Guyss! Let's have some fun at richup! :party_parrot: :fastparrot: :aawyeah:",
+        "subscribers": []
+    }
+}
