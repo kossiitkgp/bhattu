@@ -553,6 +553,10 @@ def bhattu_mod():
 
 
 if __name__ == '__main__':
-    scheduler = threading.Thread(target=ping_scheduler)
-    scheduler.start()
-    app.run()
+    while True:
+        try:
+            scheduler = threading.Thread(target=ping_scheduler)
+            scheduler.start()
+            app.run(host="0.0.0.0", port=8080)
+        except Exception as e:
+            print(e)
