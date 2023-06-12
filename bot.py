@@ -95,7 +95,7 @@ def send_chat_message_ephemeral(channel: str, user: str, text: str):
     )
 
 
-def tag_group(user: str, channel: str, position: str, message: str):
+def tag_group(user: str, channel: str, positions: list[str], message: str):
     """Function to tag a specific group
 
     Keyword arguments:
@@ -105,28 +105,40 @@ def tag_group(user: str, channel: str, position: str, message: str):
     message -- Message to be sent to each individual of the group
     """
 
-    # Load the data of group
-    with open('data.json') as f:
-        members = json.load(f)[position]
-
     # get the list of users in the channel
     channel_members_ids = channel_users(channel)['members']
 
+    # Load the data of group members from data.json
+    with open('data.json') as f:
+        data = json.load(f)
+
+    members = []  # keep track of members to be tagged
     real_names = []  # keep track of real names of tagged people
     user_not_in_channel = []  # keep track of errors
-    tags = ""
-    for member in members:
-        if member["id"] not in channel_members_ids:
-            user_not_in_channel.append(member["real_name"])
-            continue
-        tags += f"<@{member['id']}> "
-        real_names.append(member["real_name"])
+    tags = ""  # keep track of tags
 
-    if len(tags) == 0:
-        send_chat_message_ephemeral(
-            channel, user,
-            f"Hey <@{user}>!\nLooks like there is no one in {position}s in this channel")
-        return
+    for position in positions:
+        if position not in data:
+            send_chat_message_ephemeral(
+                channel, user,
+                f"Hey <@{user}>!\nLooks like there is no one in {position}s in this channel")
+            return
+        for member in data[position]:
+            if member["id"] in channel_members_ids:
+                members.append(member)
+
+        for member in members:
+            if member["id"] not in channel_members_ids:
+                user_not_in_channel.append(member["real_name"])
+                continue
+            tags += f"<@{member['id']}> "
+            real_names.append(member["real_name"])
+
+        if len(tags) == 0:
+            send_chat_message_ephemeral(
+                channel, user,
+                f"Hey <@{user}>!\nLooks like there is no one in {position}s in this channel")
+            return
     # configuring the message to be sent to the channel
     response = send_chat_message(
         channel,
@@ -338,37 +350,43 @@ def tag():
     user = data['user_id']
     channel = data['channel_id']
     text = data['text'].split()
-    group = text[0]
+    groups = text[0]
     message = "Tagged you"
     if len(text) > 1:
-        message = data['text'][len(group) + 1:].strip()
+        message = data['text'][len(groups) + 1:].strip()
 
     # extracting the group name from the request
-    position = ''
-    if group in ['ctm', 'ctms', 'fresher', 'freshers']:
-        position = 'ctm'
-    elif group in ['exec', 'execs', 'executive', 'executives']:
-        position = 'exec'
-    elif group in ['adv', 'advisor', 'advisors']:
-        position = 'advisor'
+    positions = []
+    undefined = []
+    for group in groups.split(','):
+        if group in ['ctm', 'ctms', 'fresher', 'freshers']:
+            positions.append('ctm')
+        elif group in ['exec', 'execs', 'executive', 'executives']:
+            positions.append('exec')
+        elif group in ['adv', 'advisor', 'advisors']:
+            # position = 'advisor'
+            positions.append('advisor')
+        else:
+            undefined.append(group)
 
     # sending the error message if the group name is not valid
-    if position == '':
+    if undefined:
         client.chat_postEphemeral(
             channel=channel,
             user=user,
             text=f"Hey <@{user}>!\n"
-                 f"I don't know what you mean by {group}\n"
+                 f"I don't know what you mean by {', '.join(undefined)}\n"
                  "```Usage:\n"
-                 "/tag <group> <message>\n"
-                 "/tag <group> (In this case, message will be 'Tagged you')\n\n"
+                 "/tag <groups, (comma seperated. !! do not give spaces)> <message>\n"
+                 "/tag <groups, (comma seperated. !! do not give spaces)> (In this case, message will be 'Tagged "
+                 "you')\n\n"
                  "Groups:\n"
                  "- ctm | ctms | fresher | freshers\n"
                  "- exec | execs | executive | executives\n"
                  "- adv | advisor | advisors```"
         )
     else:
-        tag_group(user, channel, position, message)  # tagging the group
+        tag_group(user, channel, positions, message)  # tagging the group
 
     return response, 200
 
