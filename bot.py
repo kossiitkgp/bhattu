@@ -382,7 +382,11 @@ def tag():
                  "Groups:\n"
                  "- ctm | ctms | fresher | freshers\n"
                  "- exec | execs | executive | executives\n"
-                 "- adv | advisor | advisors```"
+                 "- adv | advisor | advisors\n\n"
+                 "Message:\n"
+                 "The message can be anything you want to send to the tagged people, but if you want to send a "
+                 "message which includes tagging someone, use the format <@display name>. Just tag in the message you "
+                 "are writing and enclose it in <>. For example, if you want to tag @bhattu2, write <@bhattu2>.```"
         )
     else:
         tag_group(user, channel, list(set(positions)), message)  # tagging the group
