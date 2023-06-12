@@ -126,11 +126,10 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
         for member in data[position]:
             if member["id"] in channel_members_ids:
                 members.append(member)
+            else:
+                user_not_in_channel.append(member["real_name"])
 
         for member in members:
-            if member["id"] not in channel_members_ids:
-                user_not_in_channel.append(member["real_name"])
-                continue
             tags += f"<@{member['id']}> "
             real_names.append(member["real_name"])
 
