@@ -112,12 +112,12 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
     with open('data.json') as f:
         data = json.load(f)
 
-    members = []  # keep track of members to be tagged
     real_names = []  # keep track of real names of tagged people
     user_not_in_channel = []  # keep track of errors
     tags = ""  # keep track of tags
 
     for position in positions:
+        members = []  # keep track of members in the channel
         if position not in data:
             send_chat_message_ephemeral(
                 channel, user,
@@ -138,7 +138,7 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
             send_chat_message_ephemeral(
                 channel, user,
                 f"Hey <@{user}>!\nLooks like there is no one in {position}s in this channel")
-            return
+
     # configuring the message to be sent to the channel
     response = send_chat_message(
         channel,
@@ -386,7 +386,7 @@ def tag():
                  "- adv | advisor | advisors```"
         )
     else:
-        tag_group(user, channel, positions, message)  # tagging the group
+        tag_group(user, channel, list(set(positions)), message)  # tagging the group
 
     return response, 200
 
