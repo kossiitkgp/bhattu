@@ -141,12 +141,12 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
     # configuring the message to be sent to the channel
     response = send_chat_message(
         channel,
-        message
+        message + f"\n\nby: <@{user}>"
     )
     message_ts = response['ts']
     send_chat_message(
         channel,
-        f"{tags}\n\ntagged by: <@{user}>",
+        f"{tags}",
         thread_ts=message_ts
     )
 
