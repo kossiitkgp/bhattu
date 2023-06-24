@@ -128,15 +128,20 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
                 members.append(member)
             else:
                 user_not_in_channel.append(member["real_name"])
-
         for member in members:
             tags += f"<@{member['id']}> "
             real_names.append(member["real_name"])
 
-        if len(tags) == 0:
+        if len(members) == 0:
             send_chat_message_ephemeral(
                 channel, user,
                 f"Hey <@{user}>!\nLooks like there is no one in {position}s in this channel")
+    
+    if len(tags) == 0:
+        send_chat_message_ephemeral(
+            channel, user,
+            f"Hey <@{user}>!\nLooks like there is no one from {', '.join(positions)} in this channel")
+        return
 
     # configuring the message to be sent to the channel
     response = send_chat_message(
