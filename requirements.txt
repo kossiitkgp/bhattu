@@ -17,5 +17,5 @@ python-dotenv==1.0.0
 pytz==2023.3
 six==1.16.0
 slackclient==2.9.4
-Werkzeug==2.3.6
+Werkzeug==3.0.1
 yarl==1.9.2
