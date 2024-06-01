@@ -224,14 +224,18 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
     return
 
 
-def tag_random(user: str, channel: str, position: str, count: int, message: str):
+def tag_random(
+    user: str, channel: str,
+    position: str, count: int, message: str
+):
     """Function to tag random people in the channel
 
     Keyword arguments:
         user -- Id of the person invoking the /tag command
         channel -- Id of the channel in which the /tag command was invoked
+        position -- Name of the group in the data.json file
         count -- Number of people to be tagged
-        thread_ts -- Thread id of the message to which the message is to be sent
+        message -- Message to be sent to each individual of the group
     """
 
     # get the list of users in the channel
@@ -257,7 +261,8 @@ def tag_random(user: str, channel: str, position: str, count: int, message: str)
         send_chat_message_ephemeral(
             channel,
             user,
-            f"Hey <@{user}>!\nLooks like there are not enough people in the channel to tag",
+            f"Hey <@{user}>!\nLooks like there are not enough people "
+            "in the channel to tag",
         )
         return
 
@@ -300,7 +305,8 @@ def subscribe(req, unsubscribe=False):
     if unsubscribe:
         if user_id not in subscribed[sub_name]["subscribers"]:
             send_chat_message_ephemeral(
-                channel_id, user_id, f"You did not subscribe to `{sub_name}`"
+                channel_id, user_id,
+                f"You did not subscribe to `{sub_name}`"
             )
             return Response(), 200
 
@@ -556,7 +562,10 @@ def random_tag():
     text = data["text"].split()
     group = "any" if len(text) < 1 else text[0]
     count = int(text[1]) if len(text) > 1 else 1
-    message = "Hola!" if len(text) < 3 else data["text"][len(group) + len(str(count)) + 2 :].strip()
+    if len(text) < 3:
+        message = "Hola!"
+    else:
+        message = data["text"][len(group) + len(str(count)) + 2:].strip()
 
     # extracting the group name from the request
     position = None
@@ -566,7 +575,7 @@ def random_tag():
         position = "22"
     elif group in ["adv", "advisor", "advisors"]:
         position = "advisor"
-    elif group.lower() in [f"koss-{year}" for year in range(20, 23 + 1)]:  # noqa
+    elif group.lower() in [f"koss-{year}" for year in range(20, 23 + 1)]:
         position = group.split("-")[1]
     elif group == "any":
         position = "any"
@@ -585,7 +594,7 @@ def random_tag():
                 "- koss-20 | koss-21 | koss-22 | koss-23\n"
                 "- any [default]\n"
                 "Count:\n"
-                "The number of random members you want to tag, default is 1```",
+                "The number of members you want to tag [default: 1]```",
             )
         else:
             tag_random(user, channel, position, count, message)
@@ -641,7 +650,8 @@ def bhattu_mod():
         send_chat_message_ephemeral(
             request.form["channel_id"],
             request.form["user_id"],
-            f"Hey <@{request.form['user_id']}>!\nI don't Know what you mean by {command}\n"
+            f"Hey <@{request.form['user_id']}>!\nI "
+            "don't Know what you mean by {command}\n"
             + bhattu_mod_help(),
         )
         return Response(), 200
@@ -695,7 +705,8 @@ def bhattu_mod():
             return Response(), 200
 
         # of the form
-        # status=<on|off> ping_time=<hh:mm> ping_days=<0,1...6> ping_channel_id=<channel_id> ping_message=<message>
+        # status=<on|off> ping_time=<hh:mm> ping_days=<0,1...6>
+        # ping_channel_id=<channel_id> ping_message=<message>
         keyword_args_plain = (
             text[len(sub_command) + 1:].strip()[len(sub_name) + 1:].strip()
         )
@@ -823,7 +834,8 @@ def xkcd():
                 send_chat_message_ephemeral(
                     channel,
                     user,
-                    f"Hey <@{user}>!\nInvalid comic number. Please enter a valid comic number.",
+                    f"Hey <@{user}>!\nInvalid comic number. "
+                    "Please enter a valid comic number.",
                 )
                 return Response(), 200
 
@@ -831,7 +843,8 @@ def xkcd():
             send_chat_message_ephemeral(
                 channel,
                 user,
-                f"Hey <@{user}>!\nComic number out of range. Please enter a valid comic number.",
+                f"Hey <@{user}>!\nComic number out of range. "
+                "Please enter a valid comic number.",
             )
             return Response(), 200
 
