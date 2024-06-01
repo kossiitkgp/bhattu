@@ -50,6 +50,9 @@ Examples:
     - /bhattu_mod /subscribe update sutta status=off
 ```
 
+### Environment Variables
+- `SLACK_TOKEN=...` - Slack bot token, get it from the app maintainer(@lurkingryuu) or create a new slack app and get the token.
+
 ### Deploying the server
 
 > Here we will deploy on [fly](https://fly.io) for simplicity. This can be deployed to any other hosting provider or the app can be self hosted if you choose to do so. Do note that though deployment on [fly](https://fly.io) is optional, deployment itself is not!
@@ -70,7 +73,6 @@ $ flyctl secrets set SLACK_TOKEN=... # set the environment variables, do this fo
 $ fly deploy # deploys the master branch
 ```
 > If you are stuck anywhere, please refer to [flyctl docs](https://fly.io/docs/languages-and-frameworks/python/)
-
 
 ### Docker Deployment
 #### docker build
