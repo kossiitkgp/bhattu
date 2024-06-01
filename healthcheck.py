@@ -1,7 +1,6 @@
-# write a healthcheck script that checks the status of the app for docker
-
 import requests
 import sys
+
 
 def healthcheck(url):
     try:
@@ -13,6 +12,7 @@ def healthcheck(url):
     except requests.exceptions.RequestException as e:
         print('App is not healthy')
         sys.exit(1)
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
