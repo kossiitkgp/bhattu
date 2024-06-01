@@ -66,7 +66,8 @@ Then in the root of the repo:
 ```sh
 $ flyctl launch # generates the fly.toml file for this project
 ```
-> Note: after this step, you need to edit Procfile according to your needs, here in this directory Procfile is already configured for you, so select N when prompted to edit.
+> [!Note]
+> After this step, you need to edit `Procfile` according to your needs, here in this directory `Procfile` is already configured for you, so select N when prompted to edit.
 
 ```sh
 $ flyctl secrets set SLACK_TOKEN=... # set the environment variables, do this for all env variables
