@@ -19,3 +19,5 @@ six==1.16.0
 slackclient==2.9.4
 Werkzeug==2.3.6
 yarl==1.9.2
+requests==2.31.0
+gunicorn==22.0.0

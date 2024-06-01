@@ -7,7 +7,7 @@ A slack bot to tag specific group of people instead of `@channel` or individuall
 Usage:
     /tag <group> <message>
     /tag <group> (In this case, message will be 'Tagged you')
-    
+
 Groups:
     - ctm | ctms | fresher | freshers
     - exec | execs | executive | executives
@@ -23,7 +23,7 @@ Example:
 
 ### Subscribe, Unsubscribe
 ```
-Usage: 
+Usage:
     /subscribe <name>
     /unsubscribe <name>
 Examples:
@@ -55,7 +55,7 @@ Examples:
 > Here we will deploy on [fly](https://fly.io) for simplicity. This can be deployed to any other hosting provider or the app can be self hosted if you choose to do so. Do note that though deployment on [fly](https://fly.io) is optional, deployment itself is not!
 > If you have deployed the app elsewhere, please set the environment variables accordingly.
 
-> For fly ensure: You have the `flyctl` installed, If not follow the steps [flyctl installation](https://fly.io/docs/hands-on/install-flyctl/). 
+> For fly ensure: You have the `flyctl` installed, If not follow the steps [flyctl installation](https://fly.io/docs/hands-on/install-flyctl/).
 If you haven't logged in: `fly auth login`
 
 Then in the root of the repo:
@@ -63,10 +63,37 @@ Then in the root of the repo:
 ```sh
 $ flyctl launch # generates the fly.toml file for this project
 ```
-> Note: after this step, you need to edit Procfile according to your needs, here in this directory Procfile is already configured for you, so select N when prompted to edit. 
+> Note: after this step, you need to edit Procfile according to your needs, here in this directory Procfile is already configured for you, so select N when prompted to edit.
 
 ```sh
 $ flyctl secrets set SLACK_TOKEN=... # set the environment variables, do this for all env variables
 $ fly deploy # deploys the master branch
 ```
 > If you are stuck anywhere, please refer to [flyctl docs](https://fly.io/docs/languages-and-frameworks/python/)
+
+
+### Docker Deployment
+#### docker build
+- start
+```sh
+docker build -t bhattu .
+docker run -d --env-file .env -p 8080:8080 --name bhattu-app bhattu
+```
+
+- stop
+```sh
+docker stop bhattu-app
+docker rm bhattu-app
+```
+
+#### docker-compose
+- start
+```sh
+docker-compose build
+docker-compose up -d
+```
+
+- stop
+```sh
+docker-compose down
+```

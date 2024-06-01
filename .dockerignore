@@ -1,1 +1,6 @@
 fly.toml
+.env*
+*.md
+*.log
+.github
+.gitignore
