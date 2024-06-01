@@ -23,6 +23,8 @@ dotenv.load_dotenv()
 # Initializing the Slack app client
 client = WebClient(token=os.environ["SLACK_TOKEN"])
 
+random.seed(time.time())
+
 
 def ratelimit_breaker(f):
     """Decorator function to handle the rate limit error"""
@@ -70,7 +72,6 @@ def send_chat_message(channel: str, text: str, thread_ts: str | None = None):
         )
 
     return client.chat_postMessage(channel=channel, text=text)
-
 
 @ratelimit_breaker
 def send_chat_message_ephemeral(channel: str, user: str, text: str):
@@ -223,6 +224,56 @@ def tag_group(user: str, channel: str, positions: list[str], message: str):
     return
 
 
+def tag_random(
+    user: str, channel: str,
+    position: str, count: int, message: str
+):
+    """Function to tag random people in the channel
+
+    Keyword arguments:
+        user -- Id of the person invoking the /tag command
+        channel -- Id of the channel in which the /tag command was invoked
+        position -- Name of the group in the data.json file
+        count -- Number of people to be tagged
+        message -- Message to be sent to each individual of the group
+    """
+
+    # get the list of users in the channel
+    channel_members_ids = channel_users(channel)["members"]
+
+    # Load the data of group members from data.json
+    with open("data.json") as f:
+        data = json.load(f)
+
+    tag = ""
+    position_in_channel = []
+    if position == "any":
+        for key in data.keys():
+            for member in data[key]:
+                if member["id"] in channel_members_ids:
+                    position_in_channel.append(member)
+    else:
+        for member in data[position]:
+            if member["id"] in channel_members_ids:
+                position_in_channel.append(member)
+
+    if len(position_in_channel) < count:
+        send_chat_message_ephemeral(
+            channel,
+            user,
+            f"Hey <@{user}>!\nLooks like there are not enough people "
+            "in the channel to tag",
+        )
+        return
+
+    random_members = random.sample(position_in_channel, count)
+    for member in random_members:
+        tag += f"<@{member['id']}> "
+
+    send_chat_message(channel, f"{tag} {message}", thread_ts=None)
+    return
+
+
 def subscribe(req, unsubscribe=False):
     """Function to handle the /subscribe command"""
     # adding the user to the subscribed list
@@ -254,7 +305,8 @@ def subscribe(req, unsubscribe=False):
     if unsubscribe:
         if user_id not in subscribed[sub_name]["subscribers"]:
             send_chat_message_ephemeral(
-                channel_id, user_id, f"You did not subscribe to `{sub_name}`"
+                channel_id, user_id,
+                f"You did not subscribe to `{sub_name}`"
             )
             return Response(), 200
 
@@ -480,7 +532,7 @@ def tag():
                 "- ctm | ctms | fresher | freshers\n"
                 "- exec | execs | executive | executives\n"
                 "- adv | advisor | advisors\n\n"
-                "- koss-20 | koss-21 | koss-22 | koss-23```\n"
+                "- koss-20 | koss-21 | koss-22 | koss-23\n"
                 "Message:\n"
                 "The message can be anything you want to send to the tagged people, but if you want to send a "
                 "message which includes tagging someone, use the format <@display name>. Just tag in the message you "
@@ -492,6 +544,61 @@ def tag():
             )  # tagging the group
     except SlackApiError as e:
         # sending the error message if the group name is not valid
+        print(f"Error: {e}")
+
+    return response, 200
+
+
+@app.route("/random", methods=["POST"])
+def random_tag():
+    """Function to handle the /random command"""
+
+    response = Response()
+
+    data = request.form
+    user = data["user_id"]
+    channel = data["channel_id"]
+    thread_ts = None
+    text = data["text"].split()
+    group = "any" if len(text) < 1 else text[0]
+    count = int(text[1]) if len(text) > 1 else 1
+    if len(text) < 3:
+        message = "Hola!"
+    else:
+        message = data["text"][len(group) + len(str(count)) + 2:].strip()
+
+    # extracting the group name from the request
+    position = None
+    if group in ["ctm", "ctms", "fresher", "freshers"]:
+        position = "23"
+    elif group in ["exec", "execs", "executive", "executives"]:
+        position = "22"
+    elif group in ["adv", "advisor", "advisors"]:
+        position = "advisor"
+    elif group.lower() in [f"koss-{year}" for year in range(20, 23 + 1)]:
+        position = group.split("-")[1]
+    elif group == "any":
+        position = "any"
+
+    try:
+        if position is None:
+            client.chat_postEphemeral(
+                channel=channel,
+                user=user,
+                text=f"Hey <@{user}>!\n"
+                f"```Usage: /random [group] [count] [message]\n"
+                "Groups:\n"
+                "- ctm | ctms | fresher | freshers\n"
+                "- exec | execs | executive | executives\n"
+                "- adv | advisor | advisors\n"
+                "- koss-20 | koss-21 | koss-22 | koss-23\n"
+                "- any [default]\n"
+                "Count:\n"
+                "The number of members you want to tag [default: 1]```",
+            )
+        else:
+            tag_random(user, channel, position, count, message)
+    except SlackApiError as e:
         print(f"Error: {e}")
 
     return response, 200
@@ -543,7 +650,8 @@ def bhattu_mod():
         send_chat_message_ephemeral(
             request.form["channel_id"],
             request.form["user_id"],
-            f"Hey <@{request.form['user_id']}>!\nI don't Know what you mean by {command}\n"
+            f"Hey <@{request.form['user_id']}>!\nI "
+            "don't Know what you mean by {command}\n"
             + bhattu_mod_help(),
         )
         return Response(), 200
@@ -597,7 +705,8 @@ def bhattu_mod():
             return Response(), 200
 
         # of the form
-        # status=<on|off> ping_time=<hh:mm> ping_days=<0,1...6> ping_channel_id=<channel_id> ping_message=<message>
+        # status=<on|off> ping_time=<hh:mm> ping_days=<0,1...6>
+        # ping_channel_id=<channel_id> ping_message=<message>
         keyword_args_plain = (
             text[len(sub_command) + 1:].strip()[len(sub_name) + 1:].strip()
         )
@@ -725,7 +834,8 @@ def xkcd():
                 send_chat_message_ephemeral(
                     channel,
                     user,
-                    f"Hey <@{user}>!\nInvalid comic number. Please enter a valid comic number.",
+                    f"Hey <@{user}>!\nInvalid comic number. "
+                    "Please enter a valid comic number.",
                 )
                 return Response(), 200
 
@@ -733,7 +843,8 @@ def xkcd():
             send_chat_message_ephemeral(
                 channel,
                 user,
-                f"Hey <@{user}>!\nComic number out of range. Please enter a valid comic number.",
+                f"Hey <@{user}>!\nComic number out of range. "
+                "Please enter a valid comic number.",
             )
             return Response(), 200
 
