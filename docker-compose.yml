@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
